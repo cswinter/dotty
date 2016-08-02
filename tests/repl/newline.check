@@ -1,0 +1,10 @@
+scala> print("Hello, world!")
+Hello, world!
+scala> println("Hello, world!")
+Hello, world!
+
+scala> var x = 0
+x: Int = 0
+scala> x *= { print("Hello, world!"); 2 }
+Hello, world!
+scala> :quit

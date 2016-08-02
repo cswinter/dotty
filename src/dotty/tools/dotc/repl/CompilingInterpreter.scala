@@ -335,7 +335,7 @@ class CompilingInterpreter(
       case stat: TypeDef => new TypeAliasHandler(stat)
       case stat: Import => new ImportHandler(stat)
 //    case DocDef(_, documented) => chooseHandler(documented)
-      case stat => new GenericHandler(stat)
+      case _ => new GenericHandler(stat)
     }
 
     private val handlers: List[StatementHandler] = trees.map(chooseHandler)
@@ -661,7 +661,11 @@ class CompilingInterpreter(
       def resultExtractionCode(req: Request, code: PrintWriter) = {}
     }
 
-    private class GenericHandler(statement: Tree) extends StatementHandler(statement)
+    private class GenericHandler(statement: Tree) extends StatementHandler(statement) {
+      override def resultExtractionCode(req: Request, code: PrintWriter) = {
+        code.print(""" + "\n" """)
+      }
+    }
 
     private abstract class ValOrPatHandler(statement: Tree)
         extends StatementHandler(statement) {
@@ -669,9 +673,12 @@ class CompilingInterpreter(
       override def valAndVarNames = boundNames
 
       override def resultExtractionCode(req: Request, code: PrintWriter): Unit = {
-        if (!shouldShowResult(req)) return
-        val resultExtractors = boundNames.map(name => resultExtractor(req, name))
-        code.print(resultExtractors.mkString(""))
+        if (!shouldShowResult(req)) {
+          code.print(""" + "\n" """)
+        } else {
+          val resultExtractors = boundNames.map(name => resultExtractor(req, name))
+          code.print(resultExtractors.mkString(""))
+        }
       }
 
       private def resultExtractor(req: Request, varName: Name): String = {
