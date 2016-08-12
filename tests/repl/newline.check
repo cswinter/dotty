@@ -1,3 +1,11 @@
+scala> var y = 1
+y: Int = 0
+scala> y *= 2
+
+scala> var p = { println("watwat"); 0 }
+watwatp: Int = 0
+scala> var z = y
+z: Int = 2
 scala> print("Hello, world!")
 Hello, world!
 scala> println("Hello, world!")
