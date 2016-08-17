@@ -27,7 +27,9 @@ class TestREPL(script: String) extends REPL {
       val lines = script.lines
       def readLine(prompt: String): String = {
         val line = lines.next
+        println(s"READLINE: prompt='$prompt', line='$line'")
         if (line.startsWith(prompt) || line.startsWith(continuationPrompt)) {
+          println(s"PRINTING $line")
           output.println(line)
           line.drop(prompt.length)
         }

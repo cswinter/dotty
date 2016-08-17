@@ -55,8 +55,7 @@ import printing.SyntaxHighlighting
  * @author Moez A. Abdel-Gawad
  * @author Lex Spoon
  * @author Martin Odersky
- *
- * @param out   The output to use for diagnostics
+  * @param out   The output to use for diagnostics
  * @param ictx  The context to use for initialization of the interpreter,
  *              needed to access the current classpath.
  */
@@ -215,14 +214,30 @@ class CompilingInterpreter(
         interpret(s"val $newVarName =\n$line")
       case Some(trees) =>
         val req = new Request(line, newLineName)
+        println(s"INTERPRETING: $line")
+        println("### PRE OUTPUT BEGIN ###")
+        println(out.asInstanceOf[NewLinePrintWriter]._out.toString)
+        println("### OUTPUT END ###")
         if (!req.compile())
           Interpreter.Error // an error happened during compilation, e.g. a type error
         else {
+          println(s"printResults=$printResults, delayOutput=$delayOutput")
           val (resultStrings, succeeded) = req.loadAndRun()
-          if (delayOutput)
+          println(s"(resultStrings, succeeded) = ($resultStrings, $succeeded)")
+
+          println("### MID OUTPUT BEGIN ###")
+          println(out.asInstanceOf[NewLinePrintWriter]._out.toString)
+          println("### OUTPUT END ###")
+          if (delayOutput) {
             previousOutput ++= resultStrings.map(clean)
+            println(s"DELAYED OUTPUT: $resultStrings")
+          }
           else if (printResults || !succeeded)
             resultStrings.foreach(x => out.print(clean(x)))
+
+          println("### POST OUTPUT BEGIN ###")
+          println(out.asInstanceOf[NewLinePrintWriter]._out.toString)
+          println("### OUTPUT END ###")
           if (succeeded) {
             prevRequests += req
             Interpreter.Success
@@ -374,11 +389,11 @@ class CompilingInterpreter(
       }
 
     /** Types of variables defined by this request.  They are computed
-        after compilation of the main object */
+      * after compilation of the main object */
     private var typeOf: Map[Name, String] = _
 
     /** generate source code for the object that retrieves the result
-        from objectSourceCode */
+      * from objectSourceCode */
     private def resultObjectSourceCode: String =
       stringFrom(code => {
         code.println(s"object $resultObjectName")
@@ -470,7 +485,8 @@ class CompilingInterpreter(
     }
 
     /** load and run the code using reflection.
-     *  @return  A pair consisting of the run's result as a `List[String]`, and
+      *
+      *  @return  A pair consisting of the run's result as a `List[String]`, and
      *           a boolean indicating whether the run succeeded without throwing
      *           an exception.
      */
